@@ -135,7 +135,7 @@ streamlit run dashboard/app.py
 
 ## Autor
 
-**[Maria Clara Gonçalves]**  
+**Maria Clara Gonçalves**  
 LinkedIn: www.linkedin.com/in/maria-clara-gonçalves-50b22b2bb
 GitHub: https://github.com/mariaclarads/agro-demand-forecast/edit/main/README.md
 
