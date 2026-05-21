@@ -135,9 +135,9 @@ streamlit run dashboard/app.py
 
 ## Autor
 
-**[Seu Nome]**  
-LinkedIn: [linkedin.com/in/seu-perfil](https://linkedin.com/in/seu-perfil)  
-GitHub: [github.com/seu-usuario](https://github.com/seu-usuario)
+**[Maria Clara Gonçalves]**  
+LinkedIn: www.linkedin.com/in/maria-clara-gonçalves-50b22b2bb
+GitHub: https://github.com/mariaclarads/agro-demand-forecast/edit/main/README.md
 
 ---
 
