@@ -10,42 +10,60 @@
 
 ## Contexto do Problema
 
-Revendas agrícolas frequentemente antecipam compras de defensivos com base na expectativa de demanda — como inseticidas para cigarrinha-do-milho na safrinha. Quando a demanda não se concretiza, o estoque fica parado, gerando capital imobilizado, risco de vencimento dos produtos e pressão nas margens por descontos forçados.
+Revendas agrícolas frequentemente antecipam compras de defensivos com base na expectativa de demanda — como inseticidas para cigarrinha-do-milho na safrinha. Quando a demanda não se concretiza, o estoque fica parado, gerando capital imobilizado, risco de vencimento dos produtos e pressão nas margens.
 
-> *"A revenda puxou para demanda de cigarrinha no milho safrinha e está sobrando no estoque. Pouca incidência."*  
-> — Justificativa comercial real que motivou este projeto
+Um documento comercial real de devolução de estoque revelou que a queda de demanda teve causas concretas e mensuráveis:
+
+- Chuva excessiva no período de plantio dificultou a germinação — o produtor não conseguiu plantar e não precisou de defensivo
+- Seca no enchimento de grãos reduziu a produtividade — colheita ruim deixou o produtor sem caixa para investir na safra seguinte
+
+Isso mostrou que prever a demanda de defensivos vai além do histórico de vendas. É preciso considerar o que aconteceu na lavoura.
 
 ---
 
 ## Objetivo
 
-Desenvolver um modelo de previsão de demanda para produtos fitossanitários, incorporando variáveis como calendário agrícola (safra/safrinha), condições climáticas da região, preço da commodity (milho) e histórico de incidência de pragas.
+Prever a demanda de defensivos agrícolas com 60 a 90 dias de antecedência, incorporando variáveis climáticas, índice ENSO e produtividade regional, para que a revenda calibre o pedido antes de cada safra e evite excesso de estoque.
+
+---
+
+## O que diferencia este projeto
+
+A maioria dos projetos de previsão de demanda usa apenas histórico de vendas. Este projeto incorpora variáveis que explicam *por que* a demanda cai — não só *quando* ela cai:
+
+| Variável | Lógica de negócio |
+|---|---|
+| Precipitação no plantio | Chuva excessiva impede germinação — produtor não planta, não compra defensivo |
+| Déficit hídrico no enchimento | Seca reduz produtividade — colheita ruim deixa o produtor sem caixa |
+| Índice ENSO (El Niño / La Niña) | Antecipa o padrão climático com 3 a 6 meses de antecedência |
+| Produtividade regional (sc/ha) | Safra ruim no ano anterior reduz a capacidade de compra na safra seguinte |
+| Preço do milho | Preço alto melhora a margem do produtor e aumenta o investimento em defensivos |
 
 ---
 
 ## Estrutura do Repositório
 
 ```
-demand-forecast-agro/
+agro-demand-forecast/
 │
 ├── data/
-│   ├── raw/              # Dados brutos (vendas, clima, CONAB)
-│   ├── processed/        # Dados tratados e prontos para modelagem
-│   └── external/         # Fontes externas: INMET, CEPEA, CONAB
+│   ├── processed/        <- dados tratados e prontos para modelagem
+│   └── external/         <- fontes públicas: CONAB, INMET, CEPEA, NOAA
 │
 ├── notebooks/
-│   ├── 01_EDA.ipynb
-│   ├── 02_feature_engineering.ipynb
-│   ├── 03_modeling.ipynb
-│   └── 04_evaluation.ipynb
+│   ├── 01_EDA.ipynb                  <- análise exploratória
+│   ├── 02_feature_engineering.ipynb  <- criação de variáveis
+│   ├── 03_modeling.ipynb             <- treinamento dos modelos
+│   └── 04_evaluation.ipynb           <- avaliação e comparação
 │
 ├── src/
 │   ├── data_prep.py
 │   ├── features.py
-│   ├── model.py
-│   └── predict.py
+│   └── model.py
 │
 ├── dashboard/
+│   └── app.py            <- dashboard em Streamlit
+│
 ├── requirements.txt
 └── README.md
 ```
@@ -54,19 +72,19 @@ demand-forecast-agro/
 
 ## Metodologia
 
-O projeto segue a metodologia CRISP-DM: entendimento do negócio, análise exploratória dos dados, preparação, modelagem, avaliação e implantação via dashboard.
+O projeto segue a metodologia CRISP-DM: entendimento do problema de negócio, análise exploratória dos dados, preparação e enriquecimento com variáveis externas, modelagem, avaliação e implantação via dashboard interativo.
 
 ---
 
 ## Fontes de Dados
 
-| Fonte | Tipo de Dado |
-|---|---|
-| ERP interno | Histórico de vendas por produto e nota fiscal |
-| CONAB | Área plantada por cultura e região |
-| INMET | Dados climáticos históricos |
-| CEPEA/ESALQ | Preço do milho |
-| Embrapa | Incidência de pragas por safra |
+| Fonte | Dado | Link |
+|---|---|---|
+| ERP interno | Histórico de vendas por produto e nota fiscal | — |
+| INMET | Precipitação, temperatura e umidade mensais | bdmep.inmet.gov.br |
+| NOAA | Índice ENSO (ONI) — El Niño e La Niña | psl.noaa.gov |
+| CONAB | Produtividade do milho por estado e safra | conab.gov.br |
+| CEPEA/ESALQ | Preço mensal do milho | cepea.esalq.usp.br |
 
 ---
 
@@ -74,9 +92,8 @@ O projeto segue a metodologia CRISP-DM: entendimento do negócio, análise explo
 
 | Modelo | Justificativa |
 |---|---|
-| SARIMA | Baseline com sazonalidade explícita |
-| Prophet | Robusto para sazonalidade múltipla e calendário agrícola |
-| XGBoost | Incorpora variáveis externas como clima e preço de commodity |
+| Prophet | Baseline robusto para sazonalidade agrícola e calendário de safra |
+| XGBoost | Incorpora todas as variáveis externas — clima, ENSO, produtividade e preço |
 
 ---
 
@@ -93,18 +110,18 @@ O projeto segue a metodologia CRISP-DM: entendimento do negócio, análise explo
 ## Como Executar
 
 ```bash
-git clone https://github.com/seu-usuario/demand-forecast-agro.git
-cd demand-forecast-agro
+git clone https://github.com/mariaclarads/agro-demand-forecast.git
+cd agro-demand-forecast
 
 python -m venv venv
-source venv/bin/activate  # Linux/Mac
+source venv/bin/activate  # Mac/Linux
 venv\Scripts\activate     # Windows
 
 pip install -r requirements.txt
 
 jupyter notebook notebooks/
 
-# Dashboard (opcional)
+# Dashboard
 streamlit run dashboard/app.py
 ```
 
@@ -121,23 +138,13 @@ streamlit run dashboard/app.py
 
 ---
 
-## Roadmap
-
-- [x] Definição do problema de negócio
-- [x] Estrutura do repositório
-- [ ] Coleta e limpeza dos dados históricos
-- [ ] Análise Exploratória (EDA)
-- [ ] Feature Engineering
-- [ ] Treinamento e avaliação dos modelos
-- [ ] Dashboard interativo em Streamlit
-
 ---
 
 ## Autor
 
-**Maria Clara Gonçalves**  
-LinkedIn: www.linkedin.com/in/maria-clara-gonçalves-50b22b2bb
-GitHub: https://github.com/mariaclarads/agro-demand-forecast/edit/main/README.md
+**Maria Clara**
+LinkedIn: [linkedin.com/in/seu-perfil](https://linkedin.com/in/seu-perfil)
+GitHub: [github.com/mariaclarads](https://github.com/mariaclarads)
 
 ---
 
